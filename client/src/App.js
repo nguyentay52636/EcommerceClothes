@@ -1,9 +1,11 @@
 
-import './App.css';
+import MainLayout from './modules/layout/pages/MainLayout';
 
 function App() {
   return (
-    <h1>Hello</h1>
+
+     <MainLayout/>
+
   );
 }
 
