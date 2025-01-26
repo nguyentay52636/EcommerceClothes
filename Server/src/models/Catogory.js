@@ -15,7 +15,7 @@ const categorySchema = new Schema({
     enum: ['Available', 'Unavailable'],
     default: 'Available',
   },
-  createAt: {
+  createdAt: {
     type: Date,
     default: Date.now,
   },

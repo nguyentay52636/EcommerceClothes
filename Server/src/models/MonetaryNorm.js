@@ -11,3 +11,4 @@ const MonetaryNorm = new Schema({
 });
 
 export default mongoose.model("MonetaryNorm", MonetaryNorm);
+//connection point customer 

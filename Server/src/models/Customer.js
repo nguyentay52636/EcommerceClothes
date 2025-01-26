@@ -1,6 +1,6 @@
-import mongoose from 'mongoose';
-const {Schema} = mongoose;
- customerSchema = new Schema({
+import mongoose, { Schema } from 'mongoose';
+
+const customerSchema = new Schema({
   name: {
     type: String,
     required: true,
