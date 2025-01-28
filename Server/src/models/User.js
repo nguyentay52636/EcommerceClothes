@@ -21,8 +21,8 @@ const userSchema = new Schema({
   },
   role: {
     type: String,
-    enum: ['admin', 'employee', 'user'],
-    required: true,
+    enum: ["admin", "employee"],
+    default: "employee",
   },
   employeeId: {
     type: Schema.Types.ObjectId,
@@ -31,8 +31,17 @@ const userSchema = new Schema({
   },
   accountStatus: {
     type: String,
-    enum: ['active', 'inactive', 'suspended'],
-    default: 'active',
+    enum: ["active", "block"],
+    default: "active",
+  },
+ 
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
   },
   otp: {
     type: String,
@@ -41,14 +50,6 @@ const userSchema = new Schema({
   otpExpiry: {
     type: Date,
     default: null,
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now,
   },
 }, { timestamps: true });
 

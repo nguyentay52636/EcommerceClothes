@@ -1,7 +1,7 @@
 
 import express from 'express'
 import cors from 'cors'
-import {connection} from "./config/connectDB/connection.js"
+import {connection} from "./config/monggoDB/connection.js"
 import morgan from 'morgan'
 import RootRouter from "./routes/RootRouter.js"
 const app = express();
