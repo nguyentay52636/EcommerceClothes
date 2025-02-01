@@ -3,6 +3,7 @@ import User from "../models/User.js"
 import bcrypt from 'bcrypt';
 import JsonToken from "../config/jwt.js";
 const jsonWebToken = new JsonToken();
+import mongoose from 'mongoose';
 
 class UserController { 
 getUsers = async (req, res) => { 
@@ -83,7 +84,33 @@ deleteUser = async (req, res) => {
    }catch(error) { 
        responseApi(res,500,null,error.message);
  }}
-updapteUser = async (req, res) => {  }
+updateUser = async (req, res) => { 
+    let {idUser}= req.params ;
+    let { email,firstName, lastName}= req.body
+    try {
+      if(!idUser) { 
+        responseApi(res,400,null,"Id user is required");
+      }
+      if(idUser === '') { 
+          responseApi(res,400,null,"Id user is required");
+      }
+      if(!mongoose.Types.ObjectId.isValid(idUser)) { 
+          responseApi(res,400,null,"Id user is invalid");
+      }
+      let newUser= {
+        email : email,
+        firstName : firstName,
+        lastName : lastName
+      }
+      let userUpdate = await User.findByIdAndUpdate(idUser,newUser,   { new: true, runValidators: true });
+      if(!userUpdate) {
+        responseApi(res,404,null,"User not found");
+      }
+      responseApi(res,200,userUpdate,"Update user success");
+    }catch(error) { 
+        responseApi(res,500,null,error.message);
+    }
+ }
 login = async(req,res)=> { 
 let {email,password} = req.body ; 
 if (email === '' || password === '') { 
@@ -146,15 +173,22 @@ resetPassword = async(req,res)=> {
 let {token,password} = req.body ;
 try {
 let decoded =  await  jsonWebToken.verifyToken(token);
-if (new Date() > new Date(decoded.otpExpiry)) {
+if (new Date() > new Date(decoded.otpExpiry)) { 
 responseApi(res,400,null,"Token is expired");
 }
+const user = await User.findOne({
+    email : decoded.email
+})
+if(!user) { 
+    responseApi(res,404,null,"User not found");
+}
+      const hashedPassword = await bcrypt.hash(password, 10);
+      User.password = hashedPassword;
+      await User.save();
+        responseApi(res,200,null,"Reset password success");
 }catch(error) { 
     responseApi(res,500,null,error.message);
 }
 }
 } 
-
-
-
 export default UserController;

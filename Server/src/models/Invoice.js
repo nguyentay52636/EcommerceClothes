@@ -1,4 +1,5 @@
-import mongoose, { Schema } from 'mongoose';
+import mongoose from 'mongoose';
+const Schema = mongoose.Schema;
 
 const InvoiceSchema = new Schema({
   InvoiceCode: {
@@ -51,9 +52,10 @@ const InvoiceSchema = new Schema({
   status: {
     type: String,
     enum: ['Pending', 'Cancelled', 'Completed'], 
-    default: function() {
-      return this.orderType === 'online' ? 'Pending' : 'Completed';
-    }, 
+    // default: function() {
+    //   return this.orderType === 'online' ? 'Pending' : 'Completed';
+    // }, 
+    default: 'Pending',
     required: true,
   },
 }, { timestamps: true });
@@ -68,4 +70,4 @@ InvoiceSchema.virtual('invoiceDetails', {
 InvoiceSchema.set('toObject', { virtuals: true });
 InvoiceSchema.set('toJSON', { virtuals: true });
 
-module.exports = mongoose.model('Invoice', InvoiceSchema);
+export default mongoose.model('Invoice', InvoiceSchema);
