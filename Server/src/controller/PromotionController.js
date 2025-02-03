@@ -105,7 +105,41 @@ if(promotion.status=="Not Applied") {
  
 }
 const  updatePromotion = async (req, res) => {
-    
+ const {idPromotion} = req.params;
+    const {name,startTime,endTime,discount} = req.body;
+    if(!idPromotion) { 
+        responseApi(res,400,null,"Id promotion is required");
+    }
+    if(idPromotion === '') { 
+        responseApi(res,400,null,"Id promotion is required");
+    }
+    if(!name || !discount) { 
+        responseApi(res,400,null,"Name and discount are required");
+    }
+    if(startTime >= endTime) { 
+        responseApi(res,400,null,"Start time must be less than end time");
+    }
+    const upperName = name.toUpperCase();
+    try { 
+let checkExitsName = await Promotion.findOne({
+    name:upperName,
+    _id: {$ne : idPromotion}
+})
+if(checkExitsName) {
+    responseApi(res,400,null,"Promotion name is exists");
+}
+const newPromotion  = { 
+    name : name,
+    startTime : startTime,
+    endTime : endTime,
+    discount : discount
+}
+let promotionNew = await newPromotion.findByIdAndDelete(idPromotion,promotionNew,{new:true, runValidators:true});
+responseApi(res,200,promotionNew,"Update promotion success");
+
+    }catch(error) { 
+        responseApi(res,500,null,error.message);
+    } 
  } 
 
 
