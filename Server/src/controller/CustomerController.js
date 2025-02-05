@@ -47,6 +47,7 @@ class CustomerController {
   }
   getCustomerByPhone = async (req,res)=> {
     const {phone} = req.params ; 
+    console.log(phone);
     try {
       const customer = await Customer.findOne({
         phonenumber : phone 
@@ -61,39 +62,42 @@ class CustomerController {
   }
 }
 
-createNewCustomer = async (req,res)=> {
-  const { name, phoneNumber, totalPriceAfterDiscount, invoiceType } = req.body
-  if (!name || !phoneNumber) {
-    return res.status(400).json({ message: "Tên và số điện thoại là bắt buộc." });
-  }
+ createNewCustomer = async (req, res) => {
+  const { name, phonenumber, totalPriceAfterDiscount, invoiceType } = req.body;
 
-
-  if (!validator.isLength(name, { min: 2 })) {
-    return res.status(400).json({ message: "Tên phải có ít nhất 2 ký tự." });
+  console.log({
+    name,
+    phonenumber,
+    totalPriceAfterDiscount,
+    invoiceType
+  });
+  if (!name || !phonenumber) {
+  responseApi(res, 400, null, "Tên và số điện thoại là bắt buộc.");
   }
-
-  if (!validator.isNumeric(phoneNumber) || !validator.isLength(phonenumber, { min: 10, max: 10 })) {
-    return res.status(400).json({ message: "Số điện thoại không hợp lệ. Số điện thoại phải gồm 10 chữ số." });
+  if (phonenumber.length !== 10) { 
+responseApi(res, 400, null, "Số điện thoại phải có 10 chữ số.");
   }
-  try { 
-  
-    const existingCustomer = await Customer.findOne({
-      phonenumber : phoneNumber
-    });
-    if(existingCustomer) { 
-      responseApi(res,400,null,"Customer already exists");
-    }
+  try {
+    const existingCustomer = await Customer.findOne({ phonenumber});
+    if (existingCustomer) {
+       responseApi(res, 400, null, "Customer already exists by phone number");
+    } else  { 
+
     const newCustomer = new Customer({
       name,
-      phonenumber: phoneNumber,
-      
-    })
-    await newCustomer.save() ; 
-    responseApi(res200,newCustomer,"Customer created successfully");
- 
-  }catch(error) { 
-    responseApi(res,500,null,error.message);
-  }}
+      phonenumber
+    });
+
+    await newCustomer.save();
+     responseApi(res, 200, newCustomer, "Customer created successfully");
+  }
+  } catch (error) {
+     responseApi(res, 500, null, error.message);
+  }
+};
+
+
+  
   deleteCustomer = async (req,res)=> {
    const {idCustomer} = req.params ;
 
@@ -101,52 +105,62 @@ createNewCustomer = async (req,res)=> {
     if(!idCustomer) { 
       responseApi(res,400,null,"Customer id is required");
     }
-    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
-     return res.status(400).json({
-       message: "ID không hợp lệ.",
-     });
-   }
-  await Customer.findByIdAndDelete(idCustomer);
-  responseApi(res,200,null,"Customer deleted successfully");
+    if(idCustomer === '') { 
+      responseApi(res,400,null,"Customer id is required");
+    } 
+   let customer = await Customer.findByIdAndDelete(idCustomer);
+  responseApi(res,200,customer,"Customer deleted successfully");
    }catch(error) {
     responseApi(res,500,null,error.message);
 
    } 
   }
 
-  updateCustomer = async (req,res)=> { 
-    const {idCustomer} = req.params ;
-    const {name,phoneNumber} = req.body ;
-    let checkkCustomerExits = await Customer.findById(phoneNumber);
-    if(!checkkCustomerExits) { 
-      return res.status(404).json({message:"Customer not found"});
-    }
+  updateCustomer = async (req, res) => {
     try {
+      const { idCustomer } = req.params;
+      const { name, phonenumber } = req.body;
+  
+      // console.log("ID Customer:", idCustomer);
+      // console.log("Updated Name & Phone:", name, phonenumber);
+  
       if (!idCustomer) {
-        return res.status(400).json({ message: "ID khách hàng là bắt buộc." });
+        return responseApi(res, 400, null, "Id khách hàng là bắt buộc.");
       }
-      if (!validator.isLength(name, { min: 2 })) {
-        return res.status(400).json({ message: "Tên phải có ít nhất 2 ký tự." });
-      }
-    
-      if (!validator.isNumeric(phoneNumber) || !validator.isLength(phonenumber, { min: 10, max: 10 })) {
-        return res.status(400).json({ message: "Số điện thoại không hợp lệ. Số điện thoại phải gồm 10 chữ số." });
-      }
-      let newCustomer = { 
-        name,
-        phoneNumber
-      }
-      const updateCustomer = await Customer.findByIdAndUpdate(idCustomer,newCustomer,{new:true});
-      if(!updateCustomer) { 
-        responseApi(res,404,null,"Customer not found");
-      }else { 
-        responseApi(res,200,updateCustomer,"Customer updated successfully");
-      }
+  
 
-    }catch(error) { 
-      responseApi(res,500,null,error.message);
-  } 
-  }
+      if (!phonenumber || phonenumber.length !== 10) {
+        return responseApi(res, 400, null, "Số điện thoại phải có 10 chữ số.");
+      }
+  
+
+      if (!validator.isLength(name, { min: 2 })) {
+        return responseApi(res, 400, null, "Tên khách hàng phải có ít nhất 2 ký tự.");
+      }
+  
+
+      let checkCustomerExits = await Customer.findById(idCustomer);
+      if (!checkCustomerExits) {
+        return responseApi(res, 404, null, "Customer not found");
+      }
+  
+      // Cập nhật khách hàng
+      const updateCustomer = await Customer.findByIdAndUpdate(
+        idCustomer,
+        { name, phonenumber },
+        { new: true, runValidators: true }
+      );
+  
+      if (!updateCustomer) {
+        return responseApi(res, 404, null, "Customer not found after update");
+      }
+  
+      responseApi(res, 200, updateCustomer, "Customer updated successfully");
+    } catch (error) {
+      responseApi(res, 500, null, error.message);
+    }
+  };
+    // update  point customer by invoice
   updatePointCustomerByInvoice = async (req,res)=> { 
   const {idCustomer} = req.params ;
   const {totalPriceAfterDiscount} = req.body ;
@@ -155,12 +169,13 @@ const moneytaryNorm = await MonetaryNorm.findOne() ;
 if(!moneytaryNorm) { 
   responseApi(res,404,null,"Monetary Norm not found");
 }
+const customer = await Customer.findById(idCustomer);
 const newPointCustomer = Math.floor(totalPriceAfterDiscount/moneytaryNorm.moneyPerPoint);
- Customer.point+=newPointCustomer;
- await Customer.save({
+customer.point+=newPointCustomer;
+ await customer.save({
   new:true
  });
-  responseApi(res,200,Customer,"Customer point updated successfully");
+  responseApi(res,200,customer,"Customer point updated successfully");
 
 
   }catch(error) { 

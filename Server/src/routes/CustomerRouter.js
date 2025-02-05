@@ -6,9 +6,9 @@ const customerController = new CustomerController();
 
 router.get("/get-customers", customerController.getCustomer);
 router.get("/get-customer/:id",customerController.getCustomerById);
-router.get('/get-customer-by-phone/:phonenumber',customerController.getCustomerByPhone);
+router.get('/get-customer-by-phone/:phone?',customerController.getCustomerByPhone);
 router.post("/add-customer",customerController.createNewCustomer);
-router.put("/update-customer/:id?",customerController.updateCustomer);
-router.delete("/delete-customer/:id?",customerController.deleteCustomer);
-// router.patch("/update-point-by-invoice/:id",custoerController.)
+router.put("/update-customer/:idCustomer?",customerController.updateCustomer);
+router.delete("/delete-customer/:idCustomer?",customerController.deleteCustomer);
+router.patch("/update-point-by-invoice/:idCustomer?",customerController.updatePointCustomerByInvoice)
 export default router;
