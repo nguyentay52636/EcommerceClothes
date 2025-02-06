@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { responseApi } from "../config/respone.js";
 import Supplier from "../models/Supplier.js";
-import validator from "validator";
 
 const getSuppliers = async (req, res) => { 
 try {
@@ -89,27 +88,29 @@ try {
 }
 const updateSupplier  = async (req,res) => { 
     let {idSupplier} = req.params ;
- let {name,phonenumber,address,email} = req.body ;
+ let {name,phoneNumber,address,email} = req.body ;
 if(!idSupplier) { 
     responseApi(res,400,null,"Id supplier is required"); } 
 if(idSupplier === '') { 
     responseApi(res,400,null,"Id supplier is required");
 } 
-if(!validator.isEmail(email)) {  
+if(validator.isEmail(email)=== false) {  
     responseApi(res,400,null,"Email is invalid");
 } 
-if(!mongoose.Types.ObjectId.isValid(idSupplier)) {
-    responseApi(res,400,null,"Id supplier is invalid");
- } 
-
+if(validator.isNumeric(phoneNumber)=== false) { 
+    responseApi(res,400,null,"Phone number is invalid");
+}
+if(name|| email || phoneNumber || address) { 
+    responseApi(res,400,null,"Name, email, phone number, address is required");
+} 
 try {
 let  newSupplier = {
     name : name,
-    phonenumber : phonenumber,
+    phoneNumber : phoneNumber,
     address : address,
     email : email
 };
-const updateSupplier = await Supplier.findByIdAndUpdate(idSupplier,newSupplier,{new:true,runValidators:true});
+const updateSupplier = await Supplier.findByIdByIdAndUpdate(idSupplier,newSupplier,{new:true,runValidators:true});
 if(!updateSupplier) { 
     responseApi(res,404,null,"Supplier not found");
 }else {
@@ -118,6 +119,5 @@ if(!updateSupplier) {
 }catch(error) { 
     responseApi(res,500,null,error.message);
 }
-
 } 
 export {updateSupplier,deleteSupplier,createSupplier,getSuppliersById, getSuppliers };

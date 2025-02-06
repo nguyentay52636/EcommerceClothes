@@ -7,16 +7,16 @@ const productSchema = new Schema(
     sku: { type: String, required: true, unique: true },
     name: { type: String, required: true },
     description: { type: String },
-    category_id: { type: String, required: true },
+    category: { type: String, required: true },
     sizes: [
       {
-        size: { type: String, required: true }, // Example: "M", "L", "XL"
+        size: { type: String ,required: true}, // Example: "M", "L", "XL"
         quantity: { type: Number, required: true, min: 0 }, // Stock quantity
-        price: { type: Number, required: true, min: 0 }, // Price for the specific size
+        price: { type: Number, required: true,  min: 0 }, // Price for the specific size
         type: {
           type: String,
           enum: ["number", "letter"],
-          required: true,
+          require: true,
         }, // 'number' for number-based sizes (pants), 'letter' for letter-based sizes (shirts)
       },
     ],
@@ -38,12 +38,12 @@ const productSchema = new Schema(
     tags: [{ type: String }],
     supplier: {
       type: Schema.Types.ObjectId,
-      ref: 'Supplier',
+      ref: 'Supplier', 
       required: true,
     },
     discount: {
       type: String,
-    },
+    }
   },
   {
     timestamps: true,
