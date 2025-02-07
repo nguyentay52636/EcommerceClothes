@@ -1,29 +1,30 @@
-import Invoice from '../models/Invoice.js'; 
+import Invoice from '../models/Invoice.js'
+import { responseApi } from '../config/respone.js';
+import InvoiceDetail from '../models/InvoiceDetail.js';
+
 const  getInvoices = async (req, res) => {
     try {
-        let invoices = await InvoiceModel.find();
-
-        // Populate từng trường một để dễ hiểu
-        invoices = await InvoiceModel.populate(invoices, { path: 'customer', select: 'name phonenumber point' });
-        invoices = await InvoiceModel.populate(invoices, { path: 'promoCode', select: 'name discount startTime endTime' });
-
-        // Populate employeeGetByUser và employeeId lồng nhau
-        invoices = await InvoiceModel.populate(invoices, { 
-            path: 'employeeGetByUser', 
-            select: 'email firstName lastName',
-            populate: { path: 'employeeId', select: 'name phonenumber position' }
+        let invoices = await Invoice.find()
+        .populate("customer","name phonenumber point")
+        .populate("promoCode","name discount startTime endTime")
+        .populate({
+            path: "employeeGetByUser",
+            select : "email lastName firstName",
+            populate : {
+                path:"employeeId",
+                select : "email phonenumber position"
+            }
+        })
+        .populate({
+            path: 'invoiceDetails',
+            populate: {
+                path: 'product',
+                select: 'name sku',
+            },
         });
-
-        // Populate invoiceDetails và product trong đó
-        invoices = await InvoiceModel.populate(invoices, { 
-            path: 'invoiceDetails', 
-            populate: { path: 'product', select: 'name sku' }
-        });
-
-        res.status(200).json(invoices);
-    } catch (error) {
-        console.error('Error retrieving invoices:', error);
-        res.status(500).json({ message: 'Error retrieving invoices', error });
+        responseApi(res,200,invoices,"Get all invoices success");
+    }catch(error) {
+        responseApi(res,500,null,error.message);
     }
 }
 

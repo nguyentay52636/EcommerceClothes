@@ -10,6 +10,5 @@ router.post('/create-product',upload.array("images"),createProduct) ; // ok
 router.delete('/delete-product/:idProduct?',deleteProduct) ; // ok
 router.put("/update-products/:idProduct?",updateProduct) ;
 router.get('/get-products-by-category/:category?',getProductsByCategory) ; 
-
 router.get('/get-products-by-supplier/:supplier?',getProductsBySupplier) ; 
 export default router ;

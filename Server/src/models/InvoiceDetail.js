@@ -32,4 +32,4 @@ const InvoiceDetailSchema = new Schema({
   },
 }, { timestamps: true });
 
-module.exports = mongoose.model('InvoiceDetail', InvoiceDetailSchema);
+export default mongoose.model('InvoiceDetail', InvoiceDetailSchema);
