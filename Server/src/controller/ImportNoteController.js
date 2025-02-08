@@ -7,8 +7,10 @@ const getImportAndImportDetails=  async (req, res) => {
     .populate('createdBy', 'lastName firstName email') 
 
     responseApi(res,200,importData,"Get all import note success");
+    return;
    }catch(error) {
     responseApi(res,500,null,error.message);
+    return;
    }
 
  }
@@ -29,20 +31,25 @@ const getImportAndImportDetails=  async (req, res) => {
   
         if(!dataImport) { 
             responseApi(res,404,null,"Import note not found");
+            return;
         }
         responseApi(res,200,dataImport,"Get import note by id success");
+        return;
 
     }catch(error) { 
         responseApi(res,500,null,error.message);
+        return;
     }
 }
     const updateStatusImportNote = async (req, res) => {
         const {idImportNote} = req.params ; 
         if(!idImportNote) { 
             responseApi(res,404,null,"Id import note is required");
+            return;
         }
         if(idImportNote=== '') { 
             responseApi(res,404,null,"Id import note is required");
+            return;
         }
         try {
              let updateImportNote = await ImportNote.findByIdAndUpdate(idImportNote,{
@@ -51,20 +58,25 @@ const getImportAndImportDetails=  async (req, res) => {
             {new : true ,runValidators:true})
           if(!updateImportNote) { 
             responseApi(res,404,null,"Import note not found");
+            return;
           } else { 
             responseApi(res,200,updateImportNote,"Import note status updated to Completed successfully");
+            return;
           }
         }catch(error){
             responseApi(res,500,null,error.message);
+            return;
         }
     }
     const cancelStatusImportNote = async (req, res) => {
     const { idImportNote } = req.params;
     if (!idImportNote) {
         responseApi(res, 404, null, "Id import note is required");
+        return;
     }
     if (idImportNote === '') {
         responseApi(res, 404, null, "Id import note is required");
+        return;
     }
     try {
       cancelImportNote = await ImportNote.findByIdAndUpdate(idImportNote,{
@@ -72,11 +84,14 @@ const getImportAndImportDetails=  async (req, res) => {
       },{new : true, runValidators : true})
       if(!cancelImportNote) {
         responseApi(res,404,null,"Import note not found");
+        return;
       }else {
         responseApi(res,200,cancelImportNote,"Import note status updated to Cancelled successfully");
+        return;
       }
     }catch(error){
         responseApi(res, 500, null, error.message);
+        return;
     }
 } 
 //tao 1 phieu nhap hang moi 
@@ -120,9 +135,11 @@ const importNoteDetails = noteData.products.map((product)=> {
 })
 await importNoteDetails.insertMany(importNoteDetails);
 responseApi(res,200,saveImportNote,"Create import note success");
+return;
 }
 }catch(error) { 
     responseApi(res,500,null,error.message);
+    return;
 }
 
 }

@@ -38,11 +38,14 @@ class CustomerController {
       const customer = await Customer.findById(id);
       if(!customer) { 
           responseApi(res,404,null,"Customer not found");
+          return;
       }else { 
         responseApi(res,200,customer,"Customer found");
+        return;
       }
     }catch(error) { 
       responseApi(res,500,null,error.message);
+      return;
     }
   }
   getCustomerByPhone = async (req,res)=> {
@@ -54,11 +57,14 @@ class CustomerController {
       })
       if(!customer) { 
         responseApi(res,404,null,"Customer not found");
+        return;
    } else { 
     responseApi(res,200,customer,"Customer found");
+    return;
    } 
   }catch(error) { 
     responseApi(res,500,null,error.message);
+    return;
   }
 }
 
@@ -80,6 +86,7 @@ createNewCustomer = async (req,res)=> {
     });
     if(existingCustomer) { 
       responseApi(res,400,null,"Customer already exists");
+      return;
     }
     const newCustomer = new Customer({
       name,
@@ -88,9 +95,11 @@ createNewCustomer = async (req,res)=> {
     })
     await newCustomer.save() ; 
     responseApi(res200,newCustomer,"Customer created successfully");
+    return;
  
   }catch(error) { 
     responseApi(res,500,null,error.message);
+    return;
   }}
 
 
@@ -101,12 +110,14 @@ createNewCustomer = async (req,res)=> {
    try { 
     if(!idCustomer) { 
       responseApi(res,400,null,"Customer id is required");
+      return;
     }
   await Customer.findByIdAndDelete(idCustomer);
   responseApi(res,200,null,"Customer deleted successfully");
+  return;
    }catch(error) {
     responseApi(res,500,null,error.message);
-
+    return;
    } 
   }
 
@@ -135,12 +146,15 @@ createNewCustomer = async (req,res)=> {
       const updateCustomer = await Customer.findByIdAndUpdate(idCustomer,newCustomer,{new:true});
       if(!updateCustomer) { 
         responseApi(res,404,null,"Customer not found");
+        return;
       }else { 
         responseApi(res,200,updateCustomer,"Customer updated successfully");
+        return;
       }
 
     }catch(error) { 
       responseApi(res,500,null,error.message);
+      return;
   } 
   }
   updatePointCustomerByInvoice = async (req,res)=> { 
@@ -150,6 +164,7 @@ createNewCustomer = async (req,res)=> {
 const moneytaryNorm = await MonetaryNorm.findOne() ; 
 if(!moneytaryNorm) { 
   responseApi(res,404,null,"Monetary Norm not found");
+  return;
 }
 const newPointCustomer = Math.floor(totalPriceAfterDiscount/moneytaryNorm.moneyPerPoint);
  Customer.point+=newPointCustomer;
@@ -157,10 +172,11 @@ const newPointCustomer = Math.floor(totalPriceAfterDiscount/moneytaryNorm.moneyP
   new:true
  });
   responseApi(res,200,Customer,"Customer point updated successfully");
-
+  return;
 
   }catch(error) { 
     responseApi(res,500,null,error.message);
+    return;
   } 
 }
 }
