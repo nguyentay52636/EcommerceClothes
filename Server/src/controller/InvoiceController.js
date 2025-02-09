@@ -1,6 +1,5 @@
 import Invoice from '../models/Invoice.js'
 import { responseApi } from '../config/respone.js';
-import InvoiceDetail from '../models/InvoiceDetail.js';
 
 const  getInvoices = async (req, res) => {
     try {
