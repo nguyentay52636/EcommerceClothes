@@ -3,7 +3,7 @@ import User from "../models/User.js"
 import bcrypt from 'bcrypt';
 import mongoose from 'mongoose';
 import validator from 'validator';
-import { createToken,createTokenRef, dataToken } from "../config/jwt.js";
+import { checkToken, createToken,createTokenRef } from "../config/jwt.js";
 
 class UserController { 
 getUsers = async (req, res) => { 
@@ -105,43 +105,7 @@ deleteUser = async (req, res) => {
        responseApi(res,500,null,error.message);
        return;
  }}
-updateUser = async (req, res) => { 
-    let {idUser}= req.params ;
-    let { email,firstName, lastName}= req.body
-    try {
-      if(!idUser) { 
-        responseApi(res,400,null,"Id user is required");
-        return;
 
-      }
-      if(idUser === '') { 
-          responseApi(res,400,null,"Id user is required");
-          return;
-
-      }
-      if(!mongoose.Types.ObjectId.isValid(idUser)) { 
-          responseApi(res,400,null,"Id user is invalid");
-          return;
-
-      }
-      let newUser= {
-        email : email,
-        firstName : firstName,
-        lastName : lastName
-      }
-      let userUpdate = await User.findByIdAndUpdate(idUser,newUser,   { new: true, runValidators: true });
-      if(!userUpdate) {
-        responseApi(res,404,null,"User not found");
-        return;
-
-      }
-      responseApi(res,200,userUpdate,"Update user success");
-      return;
-    }catch(error) { 
-        responseApi(res,500,null,error.message);
-        return;
-    }
- }
 
  login = async (req, res) => {
     let { email, password } = req.body;
@@ -218,32 +182,73 @@ try {
 }
 
 }
-resetPassword = async(req,res)=> { 
-let {token,password} = req.body ;
-try {
-let decoded =  dataToken(token);
-console.log(decoded);
-if (new Date() > new Date(decoded.otpExpiry)) { 
-responseApi(res,400,null,"Token is expired");
-return;
-}
-const user = await User.findOne({
-    email : decoded.email
-})
-if(!user) { 
-    responseApi(res,404,null,"User not found");
-    return;
-}
-      const hashedPassword = await bcrypt.hash(password, 10);
-      User.password = hashedPassword;
-      await User.save();
-        responseApi(res,200,null,"Reset password success");
+resetPassword = async (req, res) => { 
+    let { token, password } = req.body;
+    // console.log({ token, password });
+
+    try {
+        let decoded = await checkToken(token);
+        console.log("dayla " + JSON.stringify(decoded, null, 2));
+
+        if (!decoded) { 
+            responseApi(res, 400, null, "Token is invalid or expired");
+            return;
+        }
+
+        const user = await User.findById(decoded.userId);
+        console.log(user);
+
+        if (!user) { 
+            responseApi(res, 404, null, "User not found");
+            return;
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        user.password = hashedPassword;
+        await user.save();
+
+        responseApi(res, 200, null, "Reset password success");
+    } catch (error) { 
+        responseApi(res, 500, null, error.message);
+    }
+};
+updateUser = async (req, res) => { 
+    let {idUser}= req.params ;
+    let { email,firstName, lastName}= req.body
+    try {
+      if(!idUser) { 
+        responseApi(res,400,null,"Id user is required");
         return;
-}catch(error) { 
-    responseApi(res,500,null,error.message);
-    return;
+
+      }
+      if(idUser === '') { 
+          responseApi(res,400,null,"Id user is required");
+          return;
+
+      }
+      if(!mongoose.Types.ObjectId.isValid(idUser)) { 
+          responseApi(res,400,null,"Id user is invalid");
+          return;
+
+      }
+    
+      let userUpdate = await User.findByIdAndUpdate(idUser,{ 
+        email : email,
+        firstName : firstName,
+        lastName : lastName},  
+         { new: true, runValidators: true });
+      if(!userUpdate) {
+        responseApi(res,404,null,"User not found");
+        return;
+
+      }
+      responseApi(res,200,userUpdate,"Update user success");
+      return;
+    }catch(error) { 
+        responseApi(res,500,null,error.message);
+        return;
+    }
+ }
 }
-}
-} 
 
 export default UserController;

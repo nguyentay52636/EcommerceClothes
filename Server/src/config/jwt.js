@@ -11,10 +11,12 @@ let createToken = (user) => {
 		expiresIn: '10d',
 	});
 };
-let checkToken = async (token) => {
-	return jwt.verify.apply(token, 'key_token', (error, decode) => {
-		return error;
-	});
+const checkToken = async (token) => {
+    try {
+        return jwt.verify(token, 'key_token');
+    } catch (error) {
+        return null;
+    }
 };
 let dataToken = (token) => {
 	return jwt.decode(token);
@@ -46,7 +48,7 @@ const createTokenRef = async (user) => {
 	}, 'key_token2', { algorithm: 'HS256', expiresIn: '7d' });
 };
 const checkTokenRef = async (token) => {
-	return jwt.verify.apply(token, 'key_token2', (error, decode) => {
+	return jwt.verify(token, 'key_token2', (error, decode) => {
 		return error;
 	});
 };
