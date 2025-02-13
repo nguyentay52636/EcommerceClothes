@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat với Admin</title>
+    
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        #chat-box {
+            width: 50%;
+            margin: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            background: #f9f9f9;
+            text-align: left;
+        }
+        input {
+            width: 40%;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        button {
+            padding: 10px 15px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+        .message {
+            padding: 5px;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        .user {
+            background: #d1e7ff;
+            text-align: right;
+        }
+        .admin {
+            background: #ffe6cc;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>💬 Chat với Admin</h2>
+    <div id="chat-box"></div>
+
+    <input type="text" id="message" placeholder="Nhập tin nhắn...">
+    <button onclick="sendMessage()">Gửi</button>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        const socket = io("http://localhost:8080"); // Kết nối tới server socket
+
+        socket.on("connect", () => {
+            console.log("✅ Kết nối thành công với server!");
+        });
+
+        function sendMessage() {
+            const messageInput = document.getElementById("message");
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            const chatData = {
+                sender: "user123", // Giả lập user
+                receiver: "admin456",
+                message: message
+            };
+
+            socket.emit("sendMessage", chatData); // Gửi tin nhắn đến server
+            messageInput.value = "";
+            messageInput.focus(); // Giữ focus vào ô nhập tin nhắn
+        }
+
+        // Nhận tin nhắn từ server
+        socket.on("receiveMessage", (msg) => {
+            if (!msg || !msg.sender || !msg.message) return; // Kiểm tra dữ liệu
+
+            const chatBox = document.getElementById("chat-box");
+            const msgClass = msg.sender === "user123" ? "user" : "admin"; // Phân loại tin nhắn
+            chatBox.innerHTML += `<p class="message ${msgClass}"><strong>${msg.sender}:</strong> ${msg.message}</p>`;
+            chatBox.scrollTop = chatBox.scrollHeight; // Cuộn xuống cuối
+        });
+    </script>
+    
+
+</body>
+</html>

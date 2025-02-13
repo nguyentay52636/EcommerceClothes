@@ -21,9 +21,10 @@ const userSchema = new Schema({
   },
   role: {
     type: String,
-    enum: ["admin", "employee"],
-    default: "employee",
+    enum: ["admin", "employee", "customer"],
+    default: "customer",
   },
+
   employeeId: {
     type: Schema.Types.ObjectId,
     ref: 'Employee',

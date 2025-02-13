@@ -17,7 +17,7 @@ try {
 }
 } 
 createUser = async (req, res) => { 
-    let {email,password,firstName,lastName,role,accountStatus,employeeSelected} =req.body ;
+    let {email,password,firstName,lastName,accountStatus,employeeSelected} =req.body ;
     try { 
         const existsUser = await User.findOne({
             email : email
@@ -26,13 +26,14 @@ createUser = async (req, res) => {
             responseApi(res,400,null,"Email is exists");
             return;
         }
+        
         let hashPassword = bcrypt.hashSync(password,10); // Corrected bcrypt usage
         let newUser = new User({
             email : email,
             password : hashPassword,
             firstName : firstName,
             lastName : lastName,
-            role: role || "employee",
+            role:  "customer",
             accountStatus: accountStatus || "active",
             employeeId: employeeSelected || null,
             
