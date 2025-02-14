@@ -12,15 +12,8 @@ const sendMessage = async (req, res) => {
 };
  const getChatHistory = async (req, res) => {
     try {
-        const { sender, receiver } = req.query;
-        const chatHistory = await Chat.find({
-            $or: [
-                { sender, receiver },
-                { sender: receiver, receiver: sender }
-            ]
-        }).sort({ createdAt: 1 });
-
-     responseApi(res, 200, true, "Lấy lịch sử chat thành công", chatHistory);
+        const chatHistory = await Chat.find();
+        responseApi(res,200,chatHistory,"get susscess")
     } catch (error) {
      responseApi(res, 500, false, "Lỗi server", error);
     }}

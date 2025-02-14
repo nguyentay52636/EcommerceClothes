@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Admin</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 20px; }
+        #chat-box { width: 50%; margin: auto; border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto; background: #f9f9f9; text-align: left; }
+        input { width: 40%; padding: 10px; margin-top: 10px; }
+        button { padding: 10px 15px; margin-top: 10px; cursor: pointer; }
+        .message { padding: 5px; border-radius: 5px; margin: 5px 0; }
+        .user { background: #d1e7ff; text-align: left; }
+        .admin { background: #ffe6cc; text-align: right; }
+    </style>
+</head>
+<body>
+
+    <h2>🛠️ Admin Chat</h2>
+    <div id="chat-box"></div>
+    <input type="text" id="message" placeholder="Nhập tin nhắn...">
+    <button onclick="sendMessage()">Gửi</button>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        const socket = io("http://localhost:8080"); 
+        const adminId = "admin456";  
+        const userId = "user123";  
+
+        socket.on("connect", () => {
+            console.log("✅ Admin kết nối thành công!");
+            socket.emit("join", { userId, adminId });
+        });
+
+        function sendMessage() {
+            const messageInput = document.getElementById("message");
+            const message = messageInput.value.trim();
+            if (!message) return;
+
+            const chatData = { sender: adminId, receiver: userId, message: message };
+            socket.emit("sendMessage", chatData);
+            messageInput.value = "";
+            messageInput.focus();
+        }
+
+        function addMessageToChatBox(msg) {
+            const chatBox = document.getElementById("chat-box");
+            const msgClass = msg.sender === adminId ? "admin" : "user";
+            chatBox.innerHTML += `<p class="message ${msgClass}"><strong>${msg.sender === adminId ? "Bạn" : "User"}:</strong> ${msg.message}</p>`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        socket.on("receiveMessage", (msg) => {
+            if (!msg || !msg.sender || !msg.message) return;
+            addMessageToChatBox(msg);
+        });
+    </script>
+
+</body>
+</html>
