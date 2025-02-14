@@ -1,3 +1,4 @@
+// socket.js
 import { Server } from "socket.io";
 import Chat from "../models/Chat.js";
 import User from "../models/User.js"; // Model user
@@ -7,11 +8,11 @@ export const setupSocket = (server) => {
 
   const onlineUsers = new Map(); // Lưu userId -> socketId
 
-  io.on("connection", async (socket) => {
+  io.on("connection", (socket) => {
     console.log("⚡ New user connected:", socket.id);
 
-    // Xử lý khi người dùng kết nối
-    socket.on("join", async ({ userId }) => {
+    // Khi user join, lưu userId -> socketId
+    socket.on("join", ({ userId }) => {
       if (!userId) return;
       onlineUsers.set(userId, socket.id);
       console.log(`📌 User ${userId} online với socket: ${socket.id}`);
@@ -20,18 +21,16 @@ export const setupSocket = (server) => {
     // Xử lý gửi tin nhắn
     socket.on("sendMessage", async ({ sender, receiver, message }) => {
       try {
-        if (!sender || !receiver || !message) return;
+        if (!sender || !receiver || !message || sender === receiver) return;
 
         const senderUser = await User.findById(sender);
         const receiverUser = await User.findById(receiver);
         if (!senderUser || !receiverUser) return;
 
-        // Lưu vào database
-        const chat = new Chat({ sender, receiver, message });
+        // Lưu tin nhắn vào database
+        const chat = new Chat({ sender, receiver, message, timestamp: new Date() });
         await chat.save();
-        console.log(chat);
 
-        // Lấy socketId của người nhận nếu họ đang online
         const receiverSocketId = onlineUsers.get(receiver);
 
         // Gửi tin nhắn cho cả hai bên
@@ -44,7 +43,7 @@ export const setupSocket = (server) => {
       }
     });
 
-    // Xử lý khi người dùng ngắt kết nối
+    // Xử lý khi user ngắt kết nối
     socket.on("disconnect", () => {
       console.log(`❌ User ${socket.id} disconnected`);
       for (const [userId, socketId] of onlineUsers.entries()) {
