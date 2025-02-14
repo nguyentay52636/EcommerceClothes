@@ -44,20 +44,39 @@
         }
 
         function addMessageToChatBox(msg) {
-            const chatBox = document.getElementById("chat-box");
-            const msgClass = msg.sender === userId ? "user" : "admin";
-            const timestamp = new Date(msg.timestamp).toLocaleTimeString();
+    const chatBox = document.getElementById("chat-box");
+    const msgClass = msg.sender === adminId ? "admin" : "user";
+    const timestamp = new Date(msg.timestamp).toLocaleTimeString();
 
-            chatBox.innerHTML += `<p class="message ${msgClass}">
-                <strong>${msg.sender === userId ? "Bạn" : "Admin"}:</strong> ${msg.message}
-                <br><span class="timestamp">${timestamp}</span>
-            </p>`;
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
+    chatBox.innerHTML += `<p class="message ${msgClass}" id="msg-${msg._id}">
+        <strong>${msg.sender === adminId ? "Bạn" : "User"}:</strong> ${msg.message}
+        <br><span class="timestamp">${timestamp}</span>
+        <button onclick="deleteMessage('${msg._id}')">🗑️ Xóa</button>
+    </p>`;
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
 
         socket.on("receiveMessage", (msg) => {
             addMessageToChatBox(msg);
         });
+        function deleteMessage(messageId) {
+    if (!confirm("Bạn có chắc muốn xóa tin nhắn này?")) return;
+
+    // Xóa khỏi giao diện
+    const msgElement = document.getElementById(`msg-${messageId}`);
+    if (msgElement) msgElement.remove();
+
+    // Gửi yêu cầu xóa lên server
+    socket.emit("deleteMessage", { messageId });
+}
+
+// Lắng nghe sự kiện xóa từ server
+socket.on("messageDeleted", ({ messageId }) => {
+    const msgElement = document.getElementById(`msg-${messageId}`);
+    if (msgElement) msgElement.remove();
+});
+
     </script>
 
 </body>

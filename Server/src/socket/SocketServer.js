@@ -42,6 +42,18 @@ export const setupSocket = (server) => {
         console.error("❌ Lỗi khi gửi tin nhắn:", error);
       }
     });
+    // delete message chat 
+    socket.on("deleteMessage",async({messageId})=>{
+      try {
+      if(!messageId) return;  
+      const message = await Chat.findByIdAndDelete(messageId);
+if(message){ 
+  io.emit("messageDeleted", { messageId });
+} 
+      }catch(error) {
+        console.error("❌ Lỗi khi xóa tin nhắn:", error);
+      }
+    })
 
     // Xử lý khi user ngắt kết nối
     socket.on("disconnect", () => {
