@@ -2,17 +2,14 @@ import mongoose from 'mongoose';
 const { Schema } = mongoose;
 
 const reviewSchema = new Schema({
-  review_id: {
-    type: String,
-    required: true,
-    unique: true,
-  },
   product_id: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Product',
     required: true,
   },
   user_id: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
     required: true,
   },
   rating: {
@@ -25,9 +22,9 @@ const reviewSchema = new Schema({
     type: String,
     required: true,
   },
-  date: {
+date: {
     type: Date,
-    required: true,
+    default: Date.now,
   },
 }, { timestamps: true });
 
